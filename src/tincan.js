@@ -16,13 +16,14 @@
         var subscriberId,
             subscriber,
             msgSubscribers = subscribers[msg],
-            hasOwnProperty = Object.prototype.hasOwnProperty;
+            hasOwnProperty = Object.prototype.hasOwnProperty,
+            args = Array.prototype.slice.call(arguments, 1);
 
         if (msgSubscribers) {
             for (subscriberId in msgSubscribers) {
                 if (hasOwnProperty.call(msgSubscribers, subscriberId)) {
                     subscriber = msgSubscribers[subscriberId];
-                    subscriber.callback.apply(subscriber.context);
+                    subscriber.callback.apply(subscriber.context, args);
                 }
             }
         }

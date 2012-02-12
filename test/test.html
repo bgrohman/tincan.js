@@ -113,6 +113,27 @@ test('unsubscribe', function() {
     strictEqual(count, 1);
 });
 
+test('publish with arguments', function() {
+    var count = 0,
+        id;
+
+    tincan.unsubscribeAll();
+    id = tincan.subscribe('foo', function(n) {
+        count += n;    
+    });
+
+    tincan.publish('foo', 5);
+    strictEqual(count, 5);
+
+    tincan.unsubscribe('foo', id);
+    id = tincan.subscribe('foo', function(n, m) {
+        count = n * m;
+    });
+
+    tincan.publish('foo', 2, 5);
+    strictEqual(count, 10);
+});
+
 </script>
 </head>
 <body>
