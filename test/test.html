@@ -11,6 +11,8 @@ test('the basics', function() {
     ok(tincan);
     ok(tincan.publish);
     ok(tincan.subscribe);
+    ok(tincan.unsubscribe);
+    ok(tincan.unsubscribeAll);
 });
 
 test('basic pubsub', function() {
@@ -19,23 +21,23 @@ test('basic pubsub', function() {
         result;
 
     result = tincan.subscribe('foo', {});
-    ok(!result);
+    strictEqual(result, undefined);
 
     result = tincan.subscribe('foo', null);
-    ok(!result);
+    strictEqual(result, undefined);
 
     result = tincan.subscribe('foo', 1);
-    ok(!result);
+    strictEqual(result, undefined);
 
-    result = tincan.subscribe('foo', function() {
+    var id = tincan.subscribe('foo', function() {
         firstReceived = true;
     });
-    ok(result);
+    ok(typeof id === 'number' && id > 0);
 
-    result = tincan.subscribe('foo', function() {
+    var id2 = tincan.subscribe('foo', function() {
         secondReceived = true;
     });
-    ok(result);
+    ok(typeof id2 === 'number' && id2 > id);
 
     tincan.publish('foo');
     ok(firstReceived);
@@ -54,6 +56,61 @@ test('subscribe with context', function() {
     ok(!obj.received);
     tincan.publish('foo');
     ok(obj.received);
+});
+
+test('unsubscribeAll', function() {
+    var one = two = three = 0;
+
+    tincan.subscribe('bar', function() {
+        one += 1;
+    });
+
+    tincan.subscribe('bar', function() {
+        two += 1;
+    });
+
+    tincan.subscribe('foobar', function() {
+        three += 1;
+    });
+
+    tincan.publish('bar');
+    strictEqual(one, 1);
+    strictEqual(two, 1);
+    strictEqual(three, 0);
+
+    tincan.unsubscribeAll('bar');
+    tincan.publish('bar');
+    strictEqual(one, 1);
+    strictEqual(two, 1);
+    strictEqual(three, 0);
+
+    tincan.publish('foobar');
+    strictEqual(three, 1);
+
+    tincan.subscribe('bar', function() {
+        one += 1;
+    });
+    tincan.unsubscribeAll();
+    tincan.publish('bar');
+    tincan.publish('foobar');
+    strictEqual(one, 1);
+    strictEqual(three, 1);
+});
+
+test('unsubscribe', function() {
+    var count = 0, 
+        id;
+    
+    id = tincan.subscribe('baz', function() {
+        count += 1;
+    });
+
+    tincan.publish('baz');
+    strictEqual(count, 1);
+
+    tincan.unsubscribe('baz', id);
+    tincan.publish('baz');
+    strictEqual(count, 1);
 });
 
 </script>
