@@ -33,7 +33,7 @@
      * Subscribe to a message.
      * @param msg the message to subscribe to
      * @param callback a handler function for this message
-     * @param optional context for the callback
+     * @param context (optional) context for the callback
      * @return true if the subscription was successfull
      */
     function subscribe(msg, callback, context) {
